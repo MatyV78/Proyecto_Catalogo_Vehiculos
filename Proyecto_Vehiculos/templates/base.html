@@ -8,42 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
     <style>
-/*body {
-  font-size: 20px;
-}
 
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #333;
-  position: fixed; 
-  top: 0;
-  width: 100%;
-  z-index: 999; /* para que quede encima del carrusel u otros elementos 
-}
-
-
-li {
-  float: left;
-}
-
-li a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-}
-
-li a:hover {
-  background-color: #111;
-}
-
-.active {
-  background-color: #4CAF50;
-}*/
 </style>
 </head>
 
@@ -83,6 +48,11 @@ li a:hover {
         <li class="nav-item">
           <a class="nav-link" href="{% url 'contacto' %}">Contacto</a>
         </li>
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'mis_compras' %}">Mis compras</a>
+          </li>
+        {% endif %}
       </ul>
 
 

@@ -1,12 +1,30 @@
 from django.db import models
-
+from django.conf import settings
 
 # Create your models here.
 
+#compras
+class Compra(models.Model):
+    TIPO_CHOICES = (
+        ('nuevo', 'Nuevo'),
+        ('usado', 'Usado'),
+        ('elec', 'Eléctrico'),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='compras')
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES)
+    vehiculo_id = models.PositiveIntegerField()
+    descripcion = models.CharField(max_length=255)
+    precio = models.CharField(max_length=100)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.descripcion} - {self.user}'
+
+
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
-    apellido = models.CharField(max_length=100)
-    correo = models.EmailField()
+    apellido = models.CharField(max_length=100, null=True, blank=True)
+    correo = models.EmailField(max_length=100, null=True, blank=True)
 
 
 class Marca(models.Model):
@@ -30,37 +48,40 @@ class Vehiculo(models.Model):
     Precio = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.marca + " " + self.modelo + " " + str(self.año) + " " + str(self.tipo_vehiculo) + " " + str(self.Precio)
-    
+        return f"{self.marca} {self.modelo} {self.año} {self.tipo_vehiculo} {self.Precio}"
+
+
 class VehiculoElec(models.Model):
     TIPOS_DE_VEHICULO = [
         ('Auto Electrico', 'Auto Electrico'),
         ('Moto Electrico', 'Moto Electrico'),  
         ('Camioneta Electrica', 'Camioneta Electrica')
     ]
-    marca = models.ForeignKey('Marca', on_delete=models.CASCADE, related_name='vehiculos_electricos')
+    marca = models.ForeignKey(Marca, on_delete=models.CASCADE, related_name='vehiculos_electricos')
     modelo = models.CharField(max_length=100)
     año = models.IntegerField()
     tipo_vehiculo = models.CharField(max_length=100, choices=TIPOS_DE_VEHICULO, default="Auto Electrico")
     Precio = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.marca + " " + self.modelo + " " + str(self.año) + " " + str(self.tipo_vehiculo) + " " + str(self.Precio)
-    
+        return f"{self.marca} {self.modelo} {self.año} {self.tipo_vehiculo} {self.Precio}"
+
+
 class VehiculoUsado(models.Model):
     TIPOS_DE_VEHICULO = [
         ('Auto Usado', 'Auto Usado'),
         ('Moto Usado', 'Moto Usado'),  
         ('Camioneta Usada', 'Camioneta Usada')
     ]
-    marca = models.ForeignKey('Marca', on_delete=models.CASCADE, related_name='vehiculos_usados')
+    marca = models.ForeignKey(Marca, on_delete=models.CASCADE, related_name='vehiculos_usados')
     modelo = models.CharField(max_length=100)
     año = models.IntegerField()
     tipo_vehiculo = models.CharField(max_length=100, choices=TIPOS_DE_VEHICULO, default="Auto Usado")
     Precio = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.marca + " " + self.modelo + " " + str(self.año) + " " + str(self.tipo_vehiculo) + " " + str(self.Precio)
+        return f"{self.marca} {self.modelo} {self.año} {self.tipo_vehiculo} {self.Precio}"
+
     
 
     

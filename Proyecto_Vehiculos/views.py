@@ -3,9 +3,43 @@ from Proyecto_Vehiculos.forms import VehiculoForm, Vehiculo, VehiculoElecForm, V
 from Proyecto_Vehiculos.models import VehiculoElec, VehiculoUsado, Vehiculo, Marca, Modelo, Comentario, ComentarioUso, ComentarioElec
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required 
-
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth.forms import UserCreationForm , AuthenticationForm
+from Proyecto_Vehiculos.models import Compra 
+
+
+
+#Compras de vehiculos
+
+@login_required
+def comprar_vehiculo(request, tipo, id):
+    modelos = {'nuevo': Vehiculo, 'usado': VehiculoUsado, 'elec': VehiculoElec}
+    modelo = modelos.get(tipo)
+    if not modelo:
+        return redirect('home')
+
+    vehiculo = get_object_or_404(modelo, pk=id)
+
+    if request.method == 'POST':
+        Compra.objects.create(
+            user=request.user,
+            tipo=tipo,
+            vehiculo_id=vehiculo.id,
+            descripcion=f'{vehiculo.marca} {vehiculo.modelo}',
+            precio=vehiculo.Precio,
+        )
+        messages.success(request, f'Compra registrada para {vehiculo}.')
+        destino = 'lista_vNuevos' if tipo == 'nuevo' else 'lista_vUsados' if tipo == 'usado' else 'lista_vElec'
+        return redirect(destino)
+
+    return render(request, 'compras/confirmar_compra.html', {'vehiculo': vehiculo, 'tipo': tipo})
+
+@login_required
+def mis_compras(request):
+    compras = Compra.objects.filter(user=request.user).order_by('-fecha')
+    return render(request, 'compras/mis_compras.html', {'compras': compras})
+
 
 #Login
 
@@ -43,7 +77,7 @@ def signup(request):
 
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
 
 def registro(request):
     if request.method == 'GET':

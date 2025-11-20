@@ -5,35 +5,60 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required 
 
 from django.shortcuts import redirect
-from django.contrib.auth.forms import UserCreationForm
-
-
-# Create your views here.
-
-
-
+from django.contrib.auth.forms import UserCreationForm , AuthenticationForm
 
 #Login
 
-def signup(request):
-    if request.method == 'GET':
-        return render(request, 'login/signup.html', {'form': UserCreationForm()})
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user) 
+            return redirect('home')
     else:
-        form = UserCreationForm(request.POST) # Crea el formulario con los datos POST
+        form = AuthenticationForm()
+
+    return render(request, 'login/login.html', {'form': form})
+
+
+def signup(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user) 
             return redirect('home')
-        else:
-            return render(request, 'login/signup.html', {'form': form, 'error': 'Por favor, corrige los errores.'})
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'login/signup.html', {'form': form})
+
 
 def user_logout(request):
     logout(request)
     return redirect('login')
 
+def registro(request):
+    if request.method == 'GET':
+        return render(request, 'login/registro.html', {'form': UserCreationForm()})
+    else:
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            return render(request, 'login/registro.html', {'form': form, 'error': 'Por favor, corrige los errores.'})
 
 
-@login_required
+
 def home(request):
     return render(request, 'home.html')
 
